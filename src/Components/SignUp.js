@@ -1,30 +1,14 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [isValid, setIsValid] = useState(false);
   const [message, setMessage] = useState("");
-  const validateForm = () => {
-    if (
-      email.trim() === "" ||
-      password.trim() === "" ||
-      confirmPassword.trim() === ""
-    ) {
-      setIsValid(isValid);
-    } else {
-      setIsValid(true);
-    }
-  };
 
   const submitHandler = (event) => {
     event.preventDefault();
-    validateForm();
-    if (!isValid) {
-      return setMessage("please filled all the field");
-    }
-
     fetch(
       "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDTmWANKoNV0gnTIOkp2gQVPFmrmwYejZ8",
       {
@@ -41,13 +25,12 @@ const SignUp = () => {
     )
       .then((response) => {
         if (!response.ok) {
-          throw new Error("something went wrong !!");
+          setMessage("something went wrong !!");
         }
         return response.json();
       })
       .then((data) => {
-        console.log(data);
-        setMessage("User successfully sign up");
+        setMessage("User successfully sign up", data);
       })
       .catch((error) => {
         console.log(error.message);
@@ -66,6 +49,7 @@ const SignUp = () => {
           id="email"
           placeholder="Email"
           value={email}
+          required
           onChange={(e) => setEmail(e.target.value)}
         />
 
@@ -74,6 +58,7 @@ const SignUp = () => {
           id="password"
           placeholder="Password"
           value={password}
+          required
           onChange={(e) => setPassword(e.target.value)}
         />
 
@@ -82,11 +67,20 @@ const SignUp = () => {
           id="confirmpassword"
           placeholder="ConfirmPassword"
           value={confirmPassword}
+          required
           onChange={(e) => setConfirmPassword(e.target.value)}
         />
-        <button  >Sign up</button>
+        <p>
+          <span>{message}</span>
+        </p>
+        <button>Sign up</button>
       </form>
-      {message && <p>{message}</p>}
+      <div>
+        <span>Have an account?</span>
+        <span>
+          <Link to="/login">Login</Link>
+        </span>
+      </div>
     </div>
   );
 };

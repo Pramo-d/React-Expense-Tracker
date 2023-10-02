@@ -12,6 +12,7 @@ const navigate=useNavigate()
       <nav>
         <NavLink to='/home'>Home</NavLink>
         <NavLink to='/login'>Login</NavLink>
+        <NavLink to='/updateProfile'>Profile</NavLink>
         <button onClick={handleLogout}> Logout</button>
       </nav>
     </div>

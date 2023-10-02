@@ -39,11 +39,12 @@ const Home = () => {
         Your profile is incomplete.
         <NavLink to="/updateProfile">Complete now</NavLink>
       </h2>}
-      {!isLoggedIn && <p>please login to procciding</p>}
+      
       {isLoggedIn &&<div>
         <h2>Verify your Email here</h2>
         <button onClick={verifyEmailHandler}>Verify Email</button>
       </div>}
+      {!isLoggedIn && <p>login please to access the ...</p>}
     </div>
   );
 };

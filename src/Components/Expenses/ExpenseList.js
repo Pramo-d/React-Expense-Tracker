@@ -1,11 +1,11 @@
 import React from "react";
-
+import classes from '../../Styles/ExpenseList.module.css'
 const ExpenseList = (props) => {
      
     
   return (
     <div>
-      <ul>
+      <ul className={classes.list}>
         {props.expenseData.map((item,index)=>(
             <li key={index}>
                 <span>{item.amount}</span>

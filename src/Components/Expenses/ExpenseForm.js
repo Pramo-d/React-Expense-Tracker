@@ -1,28 +1,29 @@
 import React, { useEffect, useState } from "react";
 import ExpenseList from "./ExpenseList";
-import classes from '../../Styles/ExpenseForm.module.css'
+import classes from "./ExpenseForm.module.css";
 
 const ExpenseForm = () => {
   const [expenses, setExpenses] = useState([]);
   const [spentMoney, setSpentMoney] = useState("");
   const [description, setDescription] = useState("");
   const [selectCategory, setSelectCategory] = useState("");
+  const [isEdit, setIsEdit] = useState(false);
+  const [expenseId, setExpenseId] = useState(null);
 
   const submitHandler = async (event) => {
     event.preventDefault();
 
-    const data = {
-      amount: spentMoney,
-      desc: description,
-      select: selectCategory,
-    };
-    setExpenses([...expenses, data]);
-
-    try {
+    if (isEdit === true) {
+      const data = {
+        amount: spentMoney,
+        desc: description,
+        select: selectCategory,
+      };
+      //api call for update/edit the value
       const response = await fetch(
-        "https://react-expense-tracker-5f2b4-default-rtdb.firebaseio.com/expenses.json",
+        `https://react-expense-tracker-5f2b4-default-rtdb.firebaseio.com/expenses/${expenseId}.json`,
         {
-          method: "POST",
+          method: "PUT",
           body: JSON.stringify(data),
           headers: {
             "Content-Type": "application/json",
@@ -30,62 +31,125 @@ const ExpenseForm = () => {
         }
       );
       if (response.ok) {
-        const result = response.json();
+        const result = await response.json();
         console.log(result);
-      } else {
-        alert("something went wrong ");
-      }
-    } catch (error) {
-      console.log(error);
-    }
 
+        fetchApiData();
+      } else {
+        console.log("error occurs");
+      }
+    } else {
+      const data = {
+        amount: spentMoney,
+        desc: description,
+        select: selectCategory,
+      };
+
+      // api call for the post the data firebase realtime database
+      try {
+        const response = await fetch(
+          `https://react-expense-tracker-5f2b4-default-rtdb.firebaseio.com/expenses.json`,
+          {
+            method: "POST",
+            body: JSON.stringify(data),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (response.ok) {
+          const result = await response.json();
+          fetchApiData();
+          const expenseDataWithId = { ...data, id:result.name };
+          setExpenses([...expenses, expenseDataWithId]);
+        } else {
+          alert("something went wrong ");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    
     setSpentMoney("");
     setDescription("");
     setSelectCategory("");
   };
-  useEffect(() => {
-    const fetchApiData = () => {
-      fetch(
-        "https://react-expense-tracker-5f2b4-default-rtdb.firebaseio.com/expenses.json",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      )
-        .then((res) => {
-          if (res.ok) {
-            return res.json();
-          } else {
-            alert("response is not ok!!");
-          }
-        })
-        .then((data) => {
-          console.log(data);
-          let arr = [];
-          for (let key in data) {
-            arr.push({
-              desc: data[key].desc,
-              amount: data[key].amount,
-              select: data[key].select,
-            });
-          }
-          setExpenses(arr);
-        })
-        .catch((err) => {
-          console.log(err);
+  // api data for get expense value
+  const fetchApiData = async () => {
+    const response = await fetch(
+      `https://react-expense-tracker-5f2b4-default-rtdb.firebaseio.com/expenses.json`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data);
+      let arr = [];
+      for (let key in data) {
+        arr.push({
+          id:key,
+          desc: data[key].desc,
+          amount: data[key].amount,
+          select: data[key].select,
         });
-    };
+      }
+      setExpenses(arr);
+    } else {
+      console.log("not getting proper response");
+    }
+  };
+
+  const editExpHandler = (id) => {
+    let editExpense = expenses.filter((expense) => {
+      return expense.id === id;
+    });
+    setIsEdit(true);
+    setExpenseId(id);
+    setSpentMoney(editExpense[0].amount);
+    setDescription(editExpense[0].desc);
+    setSelectCategory(editExpense[0].select);
+    console.log(editExpense);
+  };
+
+  const deleteExpHandler = async (id) => {
+    const response = await fetch(
+      `https://react-expense-tracker-5f2b4-default-rtdb.firebaseio.com/expenses/${id}.json`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response.ok) {
+      // Consume the response body to ensure proper handling
+      await response.json();
+      
+      // Remove the item with the specified id from the expenses array
+      setExpenses((prevExpenses) =>
+        prevExpenses.filter((item) => item.id !== id)
+      );
+    } else {
+      console.log("Expense not deleted!!");
+    }
+    
+  };
+  
+  useEffect(() => {
     fetchApiData();
   }, []);
-
   return (
     <div className={classes.expenseForm}>
       <form onSubmit={submitHandler}>
         <input
           type="number"
           value={spentMoney}
+          id="number"
           placeholder="Enter your amount"
           required
           onChange={(e) => {
@@ -94,6 +158,7 @@ const ExpenseForm = () => {
         />
         <input
           type="text"
+          id="description"
           value={description}
           placeholder="Enter description"
           required
@@ -103,6 +168,7 @@ const ExpenseForm = () => {
         />
         <select
           value={selectCategory}
+          id="select"
           required
           onChange={(e) => {
             setSelectCategory(e.target.value);
@@ -120,7 +186,11 @@ const ExpenseForm = () => {
         <button type="submit">Add Expenses</button>
       </form>
       <div>
-        <ExpenseList expenseData={expenses} />
+        <ExpenseList
+          expenseData={expenses}
+          editExpHandler={editExpHandler}
+          deleteExpHandler={deleteExpHandler}
+        />
       </div>
     </div>
   );

@@ -1,0 +1,31 @@
+ 
+
+nav {
+  background-color: #007bff;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+}
+
+nav a {
+  text-decoration: none;
+  color: #fff;
+  margin: 0 10px;
+  font-weight: bold;
+}
+
+nav button {
+  background-color: #fff;
+  color: #007bff;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+nav button:hover {
+  background-color:rgba(222, 29, 29, 0.788);
+}

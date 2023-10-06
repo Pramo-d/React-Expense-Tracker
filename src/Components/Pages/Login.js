@@ -1,10 +1,15 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import classes from "../../Styles/Login.module.css";
+import { useDispatch } from "react-redux";
+import { authAction } from "../Auth/Auth";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const loginHandler = async (event) => {
     event.preventDefault();
@@ -24,15 +29,17 @@ const Login = () => {
           },
         }
       );
+      navigate("/home");
       if (response.ok) {
-        navigate("/home");
+        const data = await response.json();
+        localStorage.setItem("idToken", data.idToken);
+        // localStorage.setItem('email',data.email)
+      
+        dispatch(authAction.login(data.idToken));
+        console.log("login successfully");
       } else {
         throw new Error("invalid filled entered");
       }
-
-      const data = await response.json();
-      localStorage.setItem('idToken',data.idToken)
-      console.log(data);
     } catch (error) {
       console.log(error);
     }
@@ -40,7 +47,7 @@ const Login = () => {
     setPassword("");
   };
   return (
-    <div>
+    <div className={classes.Login}>
       <form onSubmit={loginHandler}>
         <h2>Login</h2>
         <input
@@ -60,9 +67,10 @@ const Login = () => {
           required
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button>Login</button>
+        <button type="submit">Login</button>
+        <Link to="/forgotpassword">ForgotPassword</Link>
       </form>
-      <button>Forgot password</button>
+
       <div>
         <p>
           <span> Don`t have an account?</span>

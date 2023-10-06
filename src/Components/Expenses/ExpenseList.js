@@ -1,5 +1,6 @@
 import React from "react";
 import classes from "./ExpenseList.module.css";
+
 const ExpenseList = (props) => {
   return (
     <div>
@@ -15,6 +16,7 @@ const ExpenseList = (props) => {
             <button onClick={() => props.deleteExpHandler(item.id)}>
               Delete Expense
             </button>
+            {item.amount >10000 && <button>Activate Premium</button>}
           </li>
         ))}
       </ul>

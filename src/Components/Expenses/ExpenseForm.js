@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import ExpenseList from "./ExpenseList";
 import classes from "./ExpenseForm.module.css";
+import { useDispatch } from "react-redux";
+import { expenseAction } from "../Auth/AuthExpense";
 
 const ExpenseForm = () => {
   const [expenses, setExpenses] = useState([]);
@@ -9,6 +11,7 @@ const ExpenseForm = () => {
   const [selectCategory, setSelectCategory] = useState("");
   const [isEdit, setIsEdit] = useState(false);
   const [expenseId, setExpenseId] = useState(null);
+  const dispatch=useDispatch()
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -19,6 +22,9 @@ const ExpenseForm = () => {
         desc: description,
         select: selectCategory,
       };
+      dispatch(expenseAction.addAmount(spentMoney));
+      dispatch(expenseAction.addDesc(description));
+      dispatch(expenseAction.addSelect(selectCategory));
       //api call for update/edit the value
       const response = await fetch(
         `https://react-expense-tracker-5f2b4-default-rtdb.firebaseio.com/expenses/${expenseId}.json`,
@@ -31,6 +37,7 @@ const ExpenseForm = () => {
         }
       );
       if (response.ok) {
+        setIsEdit(false);
         const result = await response.json();
         console.log(result);
 
@@ -44,6 +51,9 @@ const ExpenseForm = () => {
         desc: description,
         select: selectCategory,
       };
+      dispatch(expenseAction.addAmount(spentMoney));
+      dispatch(expenseAction.addDesc(description));
+      dispatch(expenseAction.addSelect(selectCategory));
 
       // api call for the post the data firebase realtime database
       try {
@@ -99,6 +109,8 @@ const ExpenseForm = () => {
         });
       }
       setExpenses(arr);
+      localStorage.setItem("allExpense", JSON.stringify(arr));
+      dispatch(expenseAction.addExpenses(expenses));
     } else {
       console.log("not getting proper response");
     }
@@ -142,7 +154,7 @@ const ExpenseForm = () => {
   
   useEffect(() => {
     fetchApiData();
-  }, []);
+  },[]);
   return (
     <div className={classes.expenseForm}>
       <form onSubmit={submitHandler}>

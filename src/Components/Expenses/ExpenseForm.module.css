@@ -37,7 +37,7 @@
   border-radius: 3px;
 } 
 .premiumBtn {
-  justify-content:left;
+   text-align: center;
   background-color: #b26868;
   color: #333;
   font-weight: 600;
@@ -54,12 +54,12 @@
   background-color: #eb680a;
   box-shadow: 2px 3px 4px #702c17;
 }
-.csvBtn {
-  justify-content: space-between;
-   
+
+ .csvBtn {
+  justify-content:center;
   background-color: #3594fa;
   margin-top: 1rem;
-  margin-left: 50%;
+   margin-left: 50%; 
   padding: 10px 20px;
   border: none;
   border-radius: 5px;

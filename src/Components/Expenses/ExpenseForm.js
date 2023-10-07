@@ -14,6 +14,7 @@ const ExpenseForm = () => {
   const [description, setDescription] = useState("");
   const [selectCategory, setSelectCategory] = useState("");
   const [premium, setPremium] = useState(false);
+  const [premiumActive, setPremiumActive] = useState(false);
   const [csvData, setCsv] = useState("No data");
   const [isEdit, setIsEdit] = useState(false);
   const [expenseId, setExpenseId] = useState(null);
@@ -171,14 +172,23 @@ const ExpenseForm = () => {
 
   useEffect(() => {
     for (let i = 0; i < expenses.length; i++) {
-      if (expenses[i].amount > 10000) {
+      if (expenses[i].amount > 10000 && premiumActive === false) {
         setPremium(true);
         break;
       } else {
         setPremium(false);
       }
     }
-  }, [expenses]);
+  }, [expenses, premiumActive]);
+
+  const activatePremiumHandler = () => {
+    if (premium === true) {
+      setPremiumActive(true);
+      setPremium(false);
+    } else {
+      setPremiumActive(false);
+    }
+  };
 
   let header = [
     {
@@ -203,14 +213,14 @@ const ExpenseForm = () => {
       >
         <div className={classes.formHeader}>
           <h2>Expense Tracker</h2>
-          {
+          {premiumActive && (
             <button
               className={classes.themeBtn}
               onClick={() => dispatch(toggleDarkMode())}
             >
               Toggle Dark Mode
             </button>
-          }
+          )}
         </div>
         <form onSubmit={submitHandler}>
           <input
@@ -260,15 +270,20 @@ const ExpenseForm = () => {
         />
         <div>
           {premium && (
-            <button className={classes.premiumBtn}>Activate Premium</button>
+            <button
+              className={classes.premiumBtn}
+              onClick={activatePremiumHandler}
+            >
+              Activate Premium
+            </button>
           )}
-          {
+          {premiumActive && (
             <button className={classes.csvBtn}>
               <CSVLink data={csvData} headers={header} filename="expenses.csv">
                 Download Data
               </CSVLink>
             </button>
-          }
+          )}
         </div>
       </div>
     </div>

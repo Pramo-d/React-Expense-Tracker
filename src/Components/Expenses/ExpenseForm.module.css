@@ -1,39 +1,92 @@
 .expenseForm {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  margin: 20px auto;
   padding: 20px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 50%;
+  background-color: #f5f5f5;
+}
+.expenseForm button{
+  margin: 50px;
+  justify-content: space-around;
+}
+.formHeader {
+  display: flex;
+  justify-content: space-between;
+   
+}
+.hidden {
+  display: none;
+}
+
+.formHeader h2 {
+  margin-bottom: 50px;
 }
 
 .expenseForm form {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  width: 80%;
 }
 
 .expenseForm input,
 .expenseForm select {
-  width: 50%;
-  padding: 10px;
-  margin: 5px 0;
+  
+  margin-bottom: 10px;
+  padding: 8px;
   border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.expenseForm button {
-  background-color: #007bff;
-  color: #fff;
-  border: none;
+  border-radius: 3px;
+} 
+.premiumBtn {
+  justify-content:left;
+  background-color: #b26868;
+  color: #333;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-left: 78%;
   padding: 10px 20px;
-  margin-top: 10px;
-  cursor: pointer;
+  border: none;
   border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
-
-.expenseForm button:hover {
-  background-color: #090b0c;
+.premiumBtn:hover {
+  background-color: #eb680a;
+  box-shadow: 2px 3px 4px #702c17;
+}
+.csvBtn {
+  justify-content: space-between;
+   
+  background-color: #3594fa;
+  margin-top: 1rem;
+  margin-left: 50%;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+.csvBtn a {
+  text-decoration: none;
+  color: #fff;
+  font-weight: 600;
+}
+.csvBtn:hover {
+  background-color: #096cd6;
+  box-shadow: 2px 3px 4px #023a75;
+}
+.themeBtn {
+  display: inline-block;
+  background-color: #62676d;
+  color: #ccc;
+  margin-bottom: 2rem;
+  width: 7rem;
+  height: 2.5rem;
+  padding: 5px 8px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }

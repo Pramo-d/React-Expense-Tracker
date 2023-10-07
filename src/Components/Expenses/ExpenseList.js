@@ -6,17 +6,27 @@ const ExpenseList = (props) => {
     <div>
       <ul className={classes.list}>
         {props.expenseData.map((item, index) => (
-          <li key={index} id={item.id}>
-            <span>Rs.{item.amount} </span>
-            <span> || {item.desc} </span>
-            <span> || {item.select}</span>
-            <button onClick={() => props.editExpHandler(item.id)}>
-              Edit Expense
-            </button>
-            <button onClick={() => props.deleteExpHandler(item.id)}>
-              Delete Expense
-            </button>
-            {item.amount >10000 && <button>Activate Premium</button>}
+          <li key={index} id={item.id} className={classes.listItem}>
+            <div className={classes.row}>
+              <div className={classes.column}>
+                <span>Rs.{item.amount}</span>
+              </div>
+              <div className={classes.column}>
+                <span>{item.desc}</span>
+              </div>
+              <div className={classes.column}>
+                <span>{item.select}</span>
+              </div>
+            </div>
+            <div className={classes.actions}>
+              <button onClick={() => props.editExpHandler(item.id)}>
+                Edit Expense
+              </button>
+              <button onClick={() => props.deleteExpHandler(item.id)}>
+                Delete Expense
+              </button>
+              {/* {item.amount > 10000 && <button>Activate Premium</button>} */}
+            </div>
           </li>
         ))}
       </ul>

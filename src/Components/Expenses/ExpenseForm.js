@@ -1,17 +1,24 @@
 import React, { useEffect, useState } from "react";
 import ExpenseList from "./ExpenseList";
 import classes from "./ExpenseForm.module.css";
-import { useDispatch } from "react-redux";
+import "./Theme.css";
+import { useDispatch, useSelector } from "react-redux";
 import { expenseAction } from "../Auth/AuthExpense";
+import { toggleDarkMode } from "../Auth/Theme";
+import { CSVLink } from "react-csv";
+import { useCallback } from "react";
 
 const ExpenseForm = () => {
   const [expenses, setExpenses] = useState([]);
   const [spentMoney, setSpentMoney] = useState("");
   const [description, setDescription] = useState("");
   const [selectCategory, setSelectCategory] = useState("");
+  const [premium, setPremium] = useState(false);
+  const [csvData, setCsv] = useState("No data");
   const [isEdit, setIsEdit] = useState(false);
   const [expenseId, setExpenseId] = useState(null);
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
+  const darkMode = useSelector((state) => state.theme.darkMode);
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -70,7 +77,7 @@ const ExpenseForm = () => {
         if (response.ok) {
           const result = await response.json();
           fetchApiData();
-          const expenseDataWithId = { ...data, id:result.name };
+          const expenseDataWithId = { ...data, id: result.name };
           setExpenses([...expenses, expenseDataWithId]);
         } else {
           alert("something went wrong ");
@@ -79,14 +86,14 @@ const ExpenseForm = () => {
         console.log(error);
       }
     }
-    
+
     setSpentMoney("");
     setDescription("");
     setSelectCategory("");
   };
   // api data for get expense value
-  const fetchApiData = async () => {
-    const response = await fetch(
+  const fetchApiData = useCallback(() => {
+    fetch(
       `https://react-expense-tracker-5f2b4-default-rtdb.firebaseio.com/expenses.json`,
       {
         method: "GET",
@@ -94,27 +101,38 @@ const ExpenseForm = () => {
           "Content-Type": "application/json",
         },
       }
-    );
+    )
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error("Network response was not ok");
+        }
+      })
+      .then((data) => {
+        console.log(data);
+        let arr = [];
+        for (let key in data) {
+          arr.push({
+            id: key,
+            desc: data[key].desc,
+            amount: data[key].amount,
+            select: data[key].select,
+          });
+        }
+        setCsv(arr);
+        setExpenses(arr);
+        localStorage.setItem("allExpense", JSON.stringify(arr));
+        dispatch(expenseAction.addExpenses(arr));
+      })
+      .catch((error) => {
+        console.log("Error fetching data: ", error);
+      });
+  }, [dispatch]);
 
-    if (response.ok) {
-      const data = await response.json();
-      console.log(data);
-      let arr = [];
-      for (let key in data) {
-        arr.push({
-          id:key,
-          desc: data[key].desc,
-          amount: data[key].amount,
-          select: data[key].select,
-        });
-      }
-      setExpenses(arr);
-      localStorage.setItem("allExpense", JSON.stringify(arr));
-      dispatch(expenseAction.addExpenses(expenses));
-    } else {
-      console.log("not getting proper response");
-    }
-  };
+  useEffect(() => {
+    fetchApiData();
+  }, [fetchApiData]);
 
   const editExpHandler = (id) => {
     let editExpense = expenses.filter((expense) => {
@@ -141,7 +159,7 @@ const ExpenseForm = () => {
     if (response.ok) {
       // Consume the response body to ensure proper handling
       await response.json();
-      
+
       // Remove the item with the specified id from the expenses array
       setExpenses((prevExpenses) =>
         prevExpenses.filter((item) => item.id !== id)
@@ -149,60 +167,109 @@ const ExpenseForm = () => {
     } else {
       console.log("Expense not deleted!!");
     }
-    
   };
-  
+
   useEffect(() => {
-    fetchApiData();
-  },[]);
+    for (let i = 0; i < expenses.length; i++) {
+      if (expenses[i].amount > 10000) {
+        setPremium(true);
+        break;
+      } else {
+        setPremium(false);
+      }
+    }
+  }, [expenses]);
+
+  let header = [
+    {
+      label: "Amount",
+      key: "amount",
+    },
+    {
+      label: "Description",
+      key: "description",
+    },
+    {
+      label: "Category",
+      key: "category",
+    },
+  ];
   return (
-    <div className={classes.expenseForm}>
-      <form onSubmit={submitHandler}>
-        <input
-          type="number"
-          value={spentMoney}
-          id="number"
-          placeholder="Enter your amount"
-          required
-          onChange={(e) => {
-            setSpentMoney(e.target.value);
-          }}
-        />
-        <input
-          type="text"
-          id="description"
-          value={description}
-          placeholder="Enter description"
-          required
-          onChange={(e) => {
-            setDescription(e.target.value);
-          }}
-        />
-        <select
-          value={selectCategory}
-          id="select"
-          required
-          onChange={(e) => {
-            setSelectCategory(e.target.value);
-          }}
-        >
-          <option value="" disabled>
-            selectCategory
-          </option>
-          <option value="Food">Food</option>
-          <option value="Petrol">Petrol</option>
-          <option value="Salary">Salary</option>
-          <option value="Shopping">Shopping</option>
-          <option value="Other">Other</option>
-        </select>
-        <button type="submit">Add Expenses</button>
-      </form>
-      <div>
+    <div className={classes.container}>
+      <div
+        className={
+          darkMode ? `${classes.expenseForm} darkTheme` : classes.expenseForm
+        }
+      >
+        <div className={classes.formHeader}>
+          <h2>Expense Tracker</h2>
+          {
+            <button
+              className={classes.themeBtn}
+              onClick={() => dispatch(toggleDarkMode())}
+            >
+              Toggle Dark Mode
+            </button>
+          }
+        </div>
+        <form onSubmit={submitHandler}>
+          <input
+            type="number"
+            value={spentMoney}
+            id="number"
+            placeholder="Enter your amount"
+            required
+            onChange={(e) => {
+              setSpentMoney(e.target.value);
+            }}
+          />
+          <input
+            type="text"
+            id="description"
+            value={description}
+            placeholder="Enter description"
+            required
+            onChange={(e) => {
+              setDescription(e.target.value);
+            }}
+          />
+          <select
+            value={selectCategory}
+            id="select"
+            required
+            onChange={(e) => {
+              setSelectCategory(e.target.value);
+            }}
+          >
+            <option value="" disabled>
+              selectCategory
+            </option>
+            <option value="Food">Food</option>
+            <option value="Petrol">Petrol</option>
+            <option value="Salary">Salary</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Other">Other</option>
+          </select>
+          <button type="submit">Add Expenses</button>
+        </form>
+
         <ExpenseList
           expenseData={expenses}
           editExpHandler={editExpHandler}
           deleteExpHandler={deleteExpHandler}
         />
+        <div>
+          {premium && (
+            <button className={classes.premiumBtn}>Activate Premium</button>
+          )}
+          {
+            <button className={classes.csvBtn}>
+              <CSVLink data={csvData} headers={header} filename="expenses.csv">
+                Download Data
+              </CSVLink>
+            </button>
+          }
+        </div>
       </div>
     </div>
   );
